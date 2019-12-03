@@ -1,0 +1,36 @@
+- name: Remove .pydistutils.cfg configuration in homedir
+  file:
+    path: ~/.pydistutils.cfg
+    state: absent
+
+- name: Include OS-specific variables
+  include_vars: "{{ zj_distro_os }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+        - "{{ ansible_distribution }}.{{ ansible_architecture }}.yaml"
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_os_family }}.yaml"
+      skip: true
+  loop_control:
+    loop_var: zj_distro_os
+
+- name: Install /etc/pip.conf configuration
+  become: yes
+  template:
+    dest: /etc/pip.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: etc/pip.conf.j2
+
+- name: Setup distribution specific packaging mirrors
+  include: "{{ zj_distro_os }}"
+  static: no
+  with_first_found:
+    - "mirror/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yaml"
+    - "mirror/{{ ansible_distribution }}.yaml"
+    - "mirror/{{ ansible_os_family }}.yaml"
+    - "mirror/default.yaml"
+  loop_control:
+    loop_var: zj_distro_os

@@ -1,0 +1,33 @@
+# The apt module can not be used for this since it installs python-apt
+# which can not work until this command fixes the cache.
+- name: Update apt cache
+  become: yes
+  command: apt-get update
+  # ANSIBLE0006: ignore, since we cannot use the apt module
+  tags:
+    - skip_ansible_lint
+
+- name: Update yum/dnf cache
+  become: yes
+  command: "{{ zj_command }}"
+  args:
+    warn: false
+  with_items:
+    - "{{ ansible_pkg_mgr }} clean all"
+    # verbose is needed in order to make it possible to debug potential failures
+    - "{{ ansible_pkg_mgr }} makecache -v"
+  loop_control:
+    loop_var: zj_command
+
+- name: Update zypper cache
+  become: yes
+  command: "{{ zj_command }}"
+  with_items:
+    - zypper clean
+    - zypper refresh
+  loop_control:
+    loop_var: zj_command
+
+- name: Update Gentoo cache
+  become: yes
+  command: emerge-webrsync

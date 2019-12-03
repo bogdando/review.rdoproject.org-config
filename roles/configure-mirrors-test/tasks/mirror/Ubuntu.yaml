@@ -1,0 +1,15 @@
+- name: Install Ubuntu repository files
+  become: yes
+  template:
+    dest: "/{{ zj_repo }}"
+    group: root
+    mode: 0644
+    owner: root
+    src: "apt/{{ zj_repo }}.j2"
+  with_items:
+    - etc/apt/sources.list
+    - etc/apt/apt.conf.d/99unauthenticated
+  loop_control:
+    loop_var: zj_repo
+  notify:
+    - Update apt cache

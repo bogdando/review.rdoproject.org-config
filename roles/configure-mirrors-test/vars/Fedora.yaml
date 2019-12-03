@@ -1,0 +1,3 @@
+mirror_fqdn: ftp.up.pt
+pypi_fqdn: mirror01.ord.rax.openstack.org
+package_mirror: "http://{{ mirror_fqdn }}/{{ ansible_distribution | lower }}"

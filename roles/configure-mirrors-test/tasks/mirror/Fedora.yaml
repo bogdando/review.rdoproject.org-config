@@ -1,0 +1,27 @@
+- name: Install Fedora repository files
+  become: yes
+  template:
+    dest: "/{{ zj_repo }}"
+    group: root
+    mode: 0644
+    owner: root
+    src: "fedora/{{ zj_repo }}.j2"
+  with_items:
+    - etc/yum.repos.d/fedora.repo
+    - etc/yum.repos.d/fedora-updates.repo
+  loop_control:
+    loop_var: zj_repo
+  notify:
+    - Update yum/dnf cache
+
+# http://dnf.readthedocs.io/en/latest/conf_ref.html#options-for-both-main-and-repo
+# deltarpm is useful when the bottleneck is the network throughput.
+# It also requires additional drpm packages to be hosted by the mirrors which
+# is not done by default.
+- name: Disable deltrarpm
+  become: yes
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: deltarpm
+    value: "false"

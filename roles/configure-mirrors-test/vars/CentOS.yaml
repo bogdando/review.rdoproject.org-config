@@ -1,0 +1,1 @@
+epel_mirror: "http://{{ mirror_fqdn }}/epel"
